@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import chromadb
 from openai import OpenAI
 from chromadb.utils import embedding_functions
+from aiogram import Bot, Dispatcher
+
 
 load_dotenv()
 
@@ -107,3 +109,33 @@ def query_documents(question, n_results=2):
     for idx, document in enumerate(relevant_chunks):
         doc_id = results["ids"][0][idx]
         distance = results["distances"][0][idx]
+
+
+# Function to generate a response from OpenAI
+
+def generate_response(question, relevant_chunks):
+    context = "\n\n".join(relevant_chunks)
+    prompt = (
+        "You are an assistant for question-answering tasks. Use the following pieces of "
+        "retrieved context to answer the question. If you don't know the answer, say that you "
+        "don't know. Use three sentences maximum and keep the answer concise.\n\n"
+        "Context:\n" + context + "\n\nQuestion:\n" + question
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": question}
+        ]
+    )
+
+    answer = response.choices[0].message
+    return answer
+
+# Example query and response generation
+question = "Tell me about AI replacing TV writers strike."
+relevant_chunks = query_documents(question)
+answer = generate_response(question, relevant_chunks)
+
+print(answer)
