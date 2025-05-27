@@ -1,5 +1,4 @@
 import chromadb
-from chromadb.utils import embedding_functions
 
 class VectorDb:
     def __init__(self, db_type: str, embedding_function, **kwargs):
@@ -11,19 +10,15 @@ class VectorDb:
             name=collection_name,
             embedding_function=embedding_function,
         )
-    
-    def query_documents(question, collection, n_results=2):
-        results = collection.query(query_texts=question, n_results=n_results)
+
+    def query_documents(self, question, n_results=20):
+        results = self.collection.query(query_texts=question, n_results=n_results)
 
         relevant_chunks = [doc for sublist in results["documents"] for doc in sublist]
 
         print("=== Returning relevant chunks ===")
         return relevant_chunks
 
-        # for idx, document in enumerate(relevant_chunks):
-        #     doc_id = results["ids"][0][idx]
-        #     distance = results["distances"][0][idx]
-            
     def save_document_chunks(self, chunked_documents):
         """
         Save document chunks to the vector database collection.

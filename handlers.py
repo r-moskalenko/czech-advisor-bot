@@ -2,10 +2,11 @@ import os
 from aiogram import F, Router, Bot
 from aiogram.filters import CommandStart
 from aiogram import types
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, Message
+from aiogram.types import Message
 from aiogram.filters import Command
 
 from preprocess import Preprocessor
+from agent import AIAgent
 
 from dotenv import load_dotenv
 
@@ -40,13 +41,15 @@ async def ingest_handler(message: types.Message, bot: Bot, preprocessor : Prepro
     preprocessor.preprocess_single_document(file_path)
 
 @router.message(Command("ask"))
-async def ask_handler(message: Message, bot: Bot, preprocessor: Preprocessor) -> None:
+async def ask_handler(message: Message, bot: Bot, agent: AIAgent) -> None:
     question = message.text.replace("/ask", "").strip()
     if not question:
         await message.answer("Please provide a question after the /ask command.")
         return
 
     # Generate a response using the agent
-    response = preprocessor.agent.generate(question)
+    response = agent.generate(question)
+    print("=== Response in handler ===")
+    print(response)
     
-    await message.answer(response)
+    await message.answer(response.content)

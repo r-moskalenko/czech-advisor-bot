@@ -29,8 +29,10 @@ class Preprocessor:
         
         for chapter, articles in document.items():
             print(f"Chapter: {chapter}")
-            for article_title, article_content in articles.items():
-                chunks.extend(self.split_text(article_content))
+            
+            for article in articles:
+                print(f"Article: {article['title']} {article['body'][:50]}...")  # Print first 50 characters
+                chunks.extend(self.split_text(article['body']))
         
         chunked_documents = [
             {"id": f"{os.path.basename(document_path)}_{i}", "content": chunk}
@@ -57,7 +59,7 @@ class Preprocessor:
         return documents
 
 
-    def split_text(self, text, chunk_size=1000, chunk_overlap=20) -> List[str]:
+    def split_text(self, text, chunk_size=500, chunk_overlap=20) -> List[str]:
         """
         Split text into chunks of specified size with overlap.
         """
@@ -98,7 +100,7 @@ class Preprocessor:
 
         # The first element before any "Розділ..." is the preamble or title
         if chapter_splits[0].strip():
-            result['Preamble'] = {'Preamble': chapter_splits[0].strip() }
+            result['Preamble'] = [{'title':'Preamble', 'body': chapter_splits[0].strip() }]
 
         # Process each chapter and its articles
         for i in range(1, len(chapter_splits), 2):
@@ -110,11 +112,11 @@ class Preprocessor:
             article_splits = re.split(article_pattern, chapter_content)
 
             # Combine article titles and content
-            articles = {}
+            articles = []
             for j in range(1, len(article_splits), 2):
                 article_title = article_splits[j].strip()
                 article_body = article_splits[j + 1].strip()
-                articles[article_title] = article_body
+                articles.append({'title': article_title, 'body': article_body})
 
             result[chapter_title] = articles
 

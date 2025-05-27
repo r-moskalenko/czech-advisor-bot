@@ -15,10 +15,11 @@ async def main() -> None:
     load_dotenv()
 
     openai_api_key = os.getenv("OPENAI_API_KEY")
+    embedding_model = os.getenv("EMBEDDING_MODEL")
 
     openai_ef = embedding_functions.OpenAIEmbeddingFunction(
         api_key=openai_api_key,
-        model_name="text-embedding-ada-002",
+        model_name=embedding_model,
     )
 
     client = OpenAI(
@@ -30,7 +31,7 @@ async def main() -> None:
         embedding_function=openai_ef,
     )
     
-    agent = AIAgent(client, vector_store)
+    agent = AIAgent(client, vector_store, embedding_model=embedding_model)
 
     preprocessor = Preprocessor(vector_store, agent, directory_path="./documents")
 
@@ -38,7 +39,7 @@ async def main() -> None:
     TOKEN = os.getenv("TG_TOKEN")
 
     # Bot initialization
-    dp = Dispatcher(preprocessor=preprocessor)
+    dp = Dispatcher(preprocessor=preprocessor, agent=agent)
     dp.include_router(router)
     bot = Bot(token=TOKEN)
 

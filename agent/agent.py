@@ -1,9 +1,10 @@
 from vectordb import VectorDb
 
 class AIAgent:
-    def __init__(self, client, vector_store : VectorDb):
+    def __init__(self, client, vector_store : VectorDb, embedding_model):
         self.client = client
         self.vector_store = vector_store
+        self.embedding_model = embedding_model
 
     def generate(self, question : str) -> str:
         """
@@ -25,7 +26,7 @@ class AIAgent:
         )
 
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": prompt},
                 {"role": "user", "content": question}
@@ -42,7 +43,7 @@ class AIAgent:
 
         response = self.client.embeddings.create(
             input=text,
-            model="text-embedding-ada-002"
+            model=self.embedding_model
         )
         
         embedding = response.data[0].embedding
