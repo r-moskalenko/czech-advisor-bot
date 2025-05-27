@@ -21,7 +21,7 @@ async def send_welcome(message: types.Message):
 
     2. Reply to that message and send: "/ingest" command.
 
-    3. Ask any question that related to text in the document.""")
+    3. Ask any question that related to text in the document in format `/ask <question>`""")
 
 @router.message(Command("ingest"))
 async def ingest_handler(message: types.Message, bot: Bot, preprocessor : Preprocessor) -> None:
